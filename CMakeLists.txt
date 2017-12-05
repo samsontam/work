@@ -60,6 +60,10 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 
 set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
 set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
+set(USE_SANITIZER "" CACHE STRING "Type of sanitizer to enable")
+
+
+
 add_custom_target(copy-common-opae-header-files ALL
   COMMAND cmake -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
 
