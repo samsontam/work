@@ -1,13 +1,15 @@
 {
    "version": 1,
-   "platform-name": "discrete_pcie3",
-   "description": "First generation CCI-P-based discrete PCIe Gen3 cards",
+   "platform-name": "discrete_pcie3_hssi40",
+   "description": "First generation CCI-P-based discrete PCIe Gen3 cards with 40Gb HSSI",
    "ase-platform": "discrete",
    "comment":
       [
          "The platform offers local memory, which can be connected to the AFU",
          "using either the preferred avalon_mm_if SystemVerilog interface object",
-         "or with the legacy two-bank collection of Avalon wires."
+         "or with the legacy two-bank collection of Avalon wires.",
+         "",
+         "10 and 40Gb HSSI are also available."
       ],
    "module-arguments-offered" :
       [
@@ -31,7 +33,7 @@
             "params":
                {
                   "vc-supported": "{ 1, 0, 1, 0 }",
-                  "suggested-extra-timing-reg-stages": 1,
+                  "pclk-freq": 200,
                   "max-bw-active-lines-c0": "{ 256, 256, 256, 256 }",
                   "max-bw-active-lines-c1": "{ 128, 128, 128, 128 }"
                }
