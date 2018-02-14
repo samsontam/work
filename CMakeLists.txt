@@ -119,7 +119,6 @@ add_subdirectory(tools)
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
 if(BUILD_ASE)
-  add_subdirectory(ase/api)
   add_subdirectory(ase)
 endif()
 
