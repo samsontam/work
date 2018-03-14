@@ -139,6 +139,7 @@ struct _fpga_properties {
 	uint8_t function;
 	uint8_t socket_id;
 	uint64_t object_id;
+	uint32_t num_errors;
 	// TODO uint16_t device_id;
 
 	/* Object-specific properties
