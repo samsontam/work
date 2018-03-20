@@ -39,20 +39,23 @@ set(ALTERA_MEGAFUNCTIONS "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf
 ## Setup Questa global flags ###############################################
 ############################################################################
 
-set(questa_flags "")
+set(questa_flags)
 list(APPEND questa_flags +define+VENDOR_ALTERA)
 list(APPEND questa_flags +define+TOOL_QUARTUS)
 list(APPEND questa_flags +define+${ASE_SIMULATOR})
 list(APPEND questa_flags +define+${ASE_PLATFORM})
-set(QUESTA_VLOG_DEFINES "${questa_flags}"
+set(QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS ${questa_flags}
   CACHE STRING "Modelsim/Questa global define flags" FORCE)
 
-set(questa_flags "")
-list(APPEND questa_flags +incdir+.+work+${ASE_SERVER_RTL}+${PLATFORM_IF_RTL})
-set(QUESTA_VLOG_INCLUDE_DIRECTORIES "${questa_flags}"
+set(questa_flags)
+list(APPEND questa_flags .)
+list(APPEND questa_flags work)
+list(APPEND questa_flags ${ASE_SERVER_RTL})
+list(APPEND questa_flags ${PLATFORM_IF_RTL})
+set(QUESTA_VLOG_GLOBAL_INCLUDE_DIRECTORIES ${questa_flags}
   CACHE STRING "Modelsim/Questa global include flags" FORCE)
 
-set(questa_flags "")
+set(questa_flags)
 list(APPEND questa_flags -nologo)
 list(APPEND questa_flags -sv)
 list(APPEND questa_flags +librescan)
@@ -66,7 +69,7 @@ set(QUESTA_VLOG_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa glob
 set(QUESTA_VLOG_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 
 # VSIM flags
-set(questa_flags "")
+set(questa_flags)
 list(APPEND questa_flags -novopt)
 list(APPEND questa_flags -c)
 list(APPEND questa_flags -dpioutoftheblue 1)
@@ -287,19 +290,6 @@ function(ase_add_modelsim_module name)
     ${ase_platform}
     COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
-  # Build DPI header file for ASE server (module specific)
-  _get_per_build_var(questa_flags QUESTA_VLOG_FLAGS)
-  foreach(prj_file ${prj_sources_noext_abs})
-    list(APPEND questa_flags -f ${prj_file}.txt)
-  endforeach()
-
-  # Concatenate directory specific flags (definitions and include directories)
-  _get_directory_property_chained(vlog_flags QUESTA_VLOG_COMPILE_DEFINITIONS " ")
-  _get_directory_property_chained(include_dirs QUESTA_VLOG_INCLUDE_DIRECTORIES " ")
-  foreach(dir ${include_dirs})
-    list(APPEND vlog_flags +incdir+${dir})
-  endforeach(dir ${include_dirs})
-
   # Target specific properties
   set(vlog_flags_local)
   get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
@@ -345,7 +335,25 @@ endfunction(ase_add_modelsim_module name)
 # Usually this is the end of main CMakeLists.txt file.
 function(ase_finalize_modelsim_module_linking m)
 
-  _get_per_build_var(vlog_flags_per_build QUESTA_VLOG_FLAGS)
+  _get_per_build_var(vlog_flags QUESTA_VLOG_FLAGS)
+  list(APPEND vlog_flags -f sources.txt)
+  foreach(variable ${QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS})
+    list(APPEND vlog_flags +define+${variable})
+  endforeach(variable ${QUESTA_VLOG_COMPILE_DEFINITIONS})
+  foreach(dir ${QUESTA_VLOG_GLOBAL_INCLUDE_DIRECTORIES})
+    list(APPEND vlog_flags +incdir+${dir})
+  endforeach(dir ${QUESTA_VLOG_GLOBAL_INCLUDE_DIRECTORIES})
+
+  # Concatenate directory specific flags (definitions and include directories)
+  _get_directory_property_chained(compile_definitions QUESTA_VLOG_COMPILE_DEFINITIONS " ")
+  foreach(variable ${compile_definitions})
+    list(APPEND vlog_flags +define+${variable})
+  endforeach(variable ${compile_definitions})
+
+  _get_directory_property_chained(include_dirs QUESTA_VLOG_INCLUDE_DIRECTORIES " ")
+  foreach(dir ${include_dirs})
+    list(APPEND vlog_flags +incdir+${dir})
+  endforeach(dir ${include_dirs})
 
   # Get object properties
   get_property(module_binary_dir TARGET ${m} PROPERTY ASE_MODULE_BINARY_DIR)
@@ -373,9 +381,6 @@ function(ase_finalize_modelsim_module_linking m)
     COMMAND ${QUESTA_VLIB_EXECUTABLE} work
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
     -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
-    ${vlog_flags_per_build}
-    ${QUESTA_VLOG_DEFINES}
-    ${QUESTA_VLOG_INCLUDE_DIRECTORIES}
     ${vlog_flags}
     ${vlog_flags_local}
     -l vlog.log
