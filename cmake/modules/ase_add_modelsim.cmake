@@ -49,19 +49,21 @@ set(QUESTA_VLOG_DEFINES "${questa_flags}"
 
 set(questa_flags "")
 list(APPEND questa_flags +incdir+.+work+${ASE_SERVER_RTL}+${PLATFORM_IF_RTL})
-set(QUESTA_VLOG_INCLUDES "${questa_flags}"
+set(QUESTA_VLOG_INCLUDE_DIRECTORIES "${questa_flags}"
   CACHE STRING "Modelsim/Questa global include flags" FORCE)
 
 set(questa_flags "")
-list(APPEND questa_flags -nologo -sv +librescan)
+list(APPEND questa_flags -nologo)
+list(APPEND questa_flags -sv)
+list(APPEND questa_flags +librescan)
 list(APPEND questa_flags -timescale ${ASE_TIMESCALE})
 list(APPEND questa_flags -work work)
 list(APPEND questa_flags -novopt)
 _declare_per_build_vars(QUESTA_VLOG_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
-set(QUESTA_VLOG_FLAGS_DEBUG "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_RELWITHDEBINFO "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_RELEASE "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_MINSIZEREL "${questa_flags}" CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 
 # VSIM flags
 set(questa_flags "")
@@ -74,10 +76,10 @@ list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
 list(APPEND questa_flags -l vlog_run.log)
 _declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
-set(QUESTA_VSIM_FLAGS_DEBUG "${questa_flags}" CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_RELWITHDEBINFO "${questa_flags}" CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_RELEASE "${questa_flags}" CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_MINSIZEREL "${questa_flags}" CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 
 ############################################################################
 ## Setup Questa directory-specific flags ###################################
@@ -153,6 +155,12 @@ function(ase_add_modelsim_module name)
   configure_file(${ASE_SCRIPTS_IN}/ase_server.in
     ${PROJECT_BINARY_DIR}/tmp/ase_server.sh)
 
+  # Create simulation application
+  file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
+    DESTINATION ${PROJECT_BINARY_DIR}
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
+    GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
   # List of all source files, which are given.
   set(sources ${ase_add_modelsim_module_UNPARSED_ARGUMENTS})
 
@@ -162,12 +170,11 @@ function(ase_add_modelsim_module name)
   # list of files from which module building is depended
   set(source_files)
 
-  # Sources of "txt" type, but without extension.
-  # Used for Modelsim project files
+  # Modelsim project files (.txt)
   set(prj_sources_noext_abs)
-  # The sources with the code in json
+  # AFU metadata files (.json)
   set(json_sources_noext_abs)
-  # Sources of SystemVerilog type, but without extension
+  # SystemVerilog files (.sv)
   set(sverilog_sources_noext_abs)
   # Sources to be configured ('in' extension)
   set(in_sources_noext_abs)
@@ -185,7 +192,10 @@ function(ase_add_modelsim_module name)
         OR ext STREQUAL ".tcl.in"
         OR ext STREQUAL ".cfg.in"
         OR ext STREQUAL ".in"
-        OR ext STREQUAL ".txt" OR ext STREQUAL ".sv" OR ext STREQUAL ".v" OR ext STREQUAL ".json")
+        OR ext STREQUAL ".txt"
+        OR ext STREQUAL ".sv"
+        OR ext STREQUAL ".v"
+        OR ext STREQUAL ".json")
 
       # Copy source into binary tree, if needed
       # copy_source_to_binary_dir("${file_i}" file_i)
@@ -207,13 +217,13 @@ function(ase_add_modelsim_module name)
       # Categorize sources
       set(source_noext_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
       if(ext STREQUAL ".txt.in" OR ext STREQUAL ".txt")
-        # project source (source.txt)
+        # Project source file
         list(APPEND prj_sources_noext_abs ${source_noext_abs})
       elseif(ext STREQUAL ".json")
-        # JSON source
+        # JSON source file
         list(APPEND json_sources_noext_abs ${source_noext_abs})
       elseif(ext STREQUAL ".sv")
-        # SystemVerilog source
+        # SystemVerilog source file
         list(APPEND sverilog_sources_noext_abs ${source_noext_abs})
       endif()
     endif()
@@ -253,8 +263,8 @@ function(ase_add_modelsim_module name)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR           "questa")
   set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR_TIMESCALE "1ps/1ps")
 
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS          "")
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS "")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       "intg_xeon")
@@ -291,35 +301,86 @@ function(ase_add_modelsim_module name)
   endforeach(dir ${include_dirs})
 
   # Target specific properties
+  set(vlog_flags_local)
   get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-  get_property(vlog_flags_local
-    CACHE ASE_MODULE_${m}_VLOG_FLAGS
-    PROPERTY VALUE)
+  foreach(definition ${vlog_definitions_local})
+    list(APPEND vlog_flags_local +define+${definition})
+  endforeach(definition ${vlog_definitions_local})
+
   get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
   foreach(dir ${include_dirs_local})
     list(APPEND vlog_flags_local +incdir+${dir})
   endforeach(dir ${include_dirs_local})
 
+  # Create target specific cache entries
+  set(ASE_MODULE_${name}_DIR_FLAGS           ${vlog_flags_dir}    CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_TARGET_FLAGS        ${vlog_flags_local}  CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_SOURCES             ${source_files}      CACHE STRING "List of source files used to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_SOURCES_REL         ${obj_sources_rel}}  CACHE STRING "List of source files used to build ASE module '${name}'.")
+
+  mark_as_advanced(
+    ASE_MODULE_${name}_DIR_FLAGS
+    ASE_MODULE_${name}_TARGET_FLAGS
+    ASE_MODULE_${name}_SOURCES
+    ASE_MODULE_${name}_SOURCES_REL)
+
+  # Cached properties
+  set_property(CACHE ASE_MODULE_${name}_DIR_FLAGS    PROPERTY VALUE ${vlog_flags})
+  set_property(CACHE ASE_MODULE_${name}_TARGET_FLAGS PROPERTY VALUE ${vlog_flags_local})
+  set_property(CACHE ASE_MODULE_${name}_SOURCES      PROPERTY VALUE ${source_files})
+  set_property(CACHE ASE_MODULE_${name}_SOURCES_REL  PROPERTY VALUE ${obj_sources_rel})
+
+  # Add target to the global list of modules for built.
+  set_property(GLOBAL APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
+
+  # Keep track of which modules will be built from same directory
+  set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
+
+endfunction(ase_add_modelsim_module name)
+
+# ase_finalize_modelsim_linking()
+#
+# Should be called after all kernel modules and their links defined.
+# Usually this is the end of main CMakeLists.txt file.
+function(ase_finalize_modelsim_module_linking m)
+
+  _get_per_build_var(vlog_flags_per_build QUESTA_VLOG_FLAGS)
+
+  # Get object properties
+  get_property(module_binary_dir TARGET ${m} PROPERTY ASE_MODULE_BINARY_DIR)
+  get_property(module_source_dir TARGET ${m} PROPERTY ASE_MODULE_SOURCE_DIR)
+  get_property(module_name TARGET ${m} PROPERTY ASE_MODULE_NAME)
+  get_property(obj_sources
+    CACHE ASE_MODULE_${m}_SOURCES_REL
+    PROPERTY VALUE)
+  get_property(questa_flags_definitions_local TARGET ${m} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  get_property(include_dirs_local TARGET ${m} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  get_property(vlog_flags_local
+    CACHE ASE_MODULE_${m}_TARGET_FLAGS
+    PROPERTY VALUE)
+
+  # Fetch modules sharing same .ko directory
+  get_property(ase_module_targets_per_directory
+    DIRECTORY "${module_source_dir}"
+    PROPERTY ASE_MODULE_TARGETS)
+
   # Define DPI header file generation rule
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include)
+  file(MAKE_DIRECTORY ${module_binary_dir}/include)
   add_custom_command(
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT "${module_binary_dir}/include/platform_dpi.h"
+    WORKING_DIRECTORY ${module_binary_dir}
     COMMAND ${QUESTA_VLIB_EXECUTABLE} work
     COMMAND ${QUESTA_VLOG_EXECUTABLE}
     -dpiheader ${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h
-    ${questa_flags}
+    ${vlog_flags_per_build}
     ${QUESTA_VLOG_DEFINES}
     ${QUESTA_VLOG_INCLUDE_DIRECTORIES}
     ${vlog_flags}
     ${vlog_flags_local}
     -l vlog.log
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
+    DEPENDS "${module_binary_dir}/platform_includes/platform_afu_top_config.vh"
+    COMMENT "Building ASE module ${module_name}"
+    VERBATIM)
 
-  # Create simulation application
-  file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
-    DESTINATION ${PROJECT_BINARY_DIR}
-    FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ
-    GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-
-endfunction(ase_add_modelsim_module name)
+endfunction(ase_finalize_modelsim_module_linking m)
