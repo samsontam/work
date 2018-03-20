@@ -61,9 +61,9 @@ set(ASE_DISCRETE_EMIF_MODEL    "EMIF_MODEL_BASIC"   CACHE STRING "ASE EMIF discr
 set(ASE_TOP_ENTITY             "ase_top"            CACHE STRING "Top entity for the ASE testbench")
 
 # Following variables should be local to the project
-set(ASE_TIMESCALE              "1ps/1ps"            CACHE STRING "ASE timescale")
-set(ASE_SIMULATOR              "QUESTA"             CACHE STRING "ASE timescale")
-set(ASE_PLATFORM               "intg_xeon"          CACHE STRING "ASE timescale")
+set(ASE_TIMESCALE              "1ps/1ps"            CACHE STRING "ASE timescale (default)")
+set(ASE_SIMULATOR              "QUESTA"             CACHE STRING "ASE simulator (default)")
+set(ASE_PLATFORM               "intg_xeon"          CACHE STRING "ASE platform (default)")
 
 # SW library name
 set(ASE_PKG_FILE               ${ASE_SERVER_RTL}/ase_pkg.sv)
