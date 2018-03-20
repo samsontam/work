@@ -68,3 +68,4 @@ set(intg_xeon_nlb_SOURCES
   ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
+ase_finalize_modelsim_module_linking(intg_xeon_nlb)

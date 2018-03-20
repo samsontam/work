@@ -56,7 +56,7 @@ add_subdirectory(rtl)
 # add_subdirectory(sw)
 
 # ASE samples
-if(ASE_BUILD_SAMPLES)
+if(BUILD_ASE_SAMPLES)
   add_subdirectory(samples)
 endif()
 
