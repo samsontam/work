@@ -25,15 +25,17 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-project("opae-c-ase-platform")
-
-include(ase_add_modelsim)
+project("opae-c-ase-server-rtl")
+include(ase_variables_config)
 
 # CCIP base RTL code
-if(NOT ASE_POST_INSTALL)
-  configure_file(${PROJECT_SOURCE_DIR}/sources_abs.txt.in
-    ${PROJECT_BINARY_DIR}/sources_abs.txt)
-  install(FILES ${PROJECT_BINARY_DIR}/sources_abs.txt
+if(ASE_POST_INSTALL)
+  configure_file(${PROJECT_SOURCE_DIR}/sources_ase_server.txt
+    ${PROJECT_BINARY_DIR}/sources_ase_server.txt)
+else()
+  configure_file(${PROJECT_SOURCE_DIR}/sources_ase_server.txt.in
+    ${PROJECT_BINARY_DIR}/sources_ase_server.txt)
+  install(FILES ${PROJECT_BINARY_DIR}/sources_ase_server.txt
     DESTINATION ${ASE_SHARE_DIR}/rtl
     COMPONENT aseextra)
 endif()
