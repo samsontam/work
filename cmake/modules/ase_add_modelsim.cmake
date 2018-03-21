@@ -40,10 +40,10 @@ set(ALTERA_MEGAFUNCTIONS "${QUARTUS_DIR}/../modelsim_ae/altera/verilog/altera_mf
 ############################################################################
 
 set(questa_flags)
-list(APPEND questa_flags +define+VENDOR_ALTERA)
-list(APPEND questa_flags +define+TOOL_QUARTUS)
-list(APPEND questa_flags +define+${ASE_SIMULATOR})
-list(APPEND questa_flags +define+${ASE_PLATFORM})
+list(APPEND questa_flags VENDOR_ALTERA)
+list(APPEND questa_flags TOOL_QUARTUS)
+list(APPEND questa_flags ${ASE_SIMULATOR})
+list(APPEND questa_flags ${ASE_PLATFORM})
 set(QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS ${questa_flags}
   CACHE STRING "Modelsim/Questa global define flags" FORCE)
 
