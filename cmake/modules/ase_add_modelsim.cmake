@@ -149,6 +149,8 @@ function(ase_add_modelsim_module name)
   set(ASE_SIMULATION_SCRIPT   "${PROJECT_BINARY_DIR}/vsim_run.tcl")
 
   # Create ASE scripts
+  configure_file(${CMAKE_BINARY_DIR}/ase/rtl/sources_ase_server.txt
+    ${ASE_WORKDIR}/sources_ase_server.txt)
   configure_file(${ASE_SCRIPTS_IN}/ase.cfg.in
     ${ASE_CONFIG})
   configure_file(${ASE_SCRIPTS_IN}/ase_regress.sh.in
@@ -156,7 +158,7 @@ function(ase_add_modelsim_module name)
   configure_file(${ASE_SCRIPTS_IN}/vsim_run.tcl.in
     ${ASE_SIMULATION_SCRIPT})
   configure_file(${ASE_SCRIPTS_IN}/ase_server.in
-    ${PROJECT_BINARY_DIR}/tmp/ase_server.sh)
+    ${ASE_WORKDIR}/tmp/ase_server.sh)
 
   # Create simulation application
   file(COPY ${PROJECT_BINARY_DIR}/tmp/ase_server.sh
@@ -218,16 +220,16 @@ function(ase_add_modelsim_module name)
       endif()
 
       # Categorize sources
-      set(source_noext_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
+      set(source_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
       if(ext STREQUAL ".txt.in" OR ext STREQUAL ".txt")
         # Project source file
-        list(APPEND prj_sources_noext_abs ${source_noext_abs})
+        list(APPEND prj_sources_abs ${source_abs}.txt)
       elseif(ext STREQUAL ".json")
         # JSON source file
-        list(APPEND json_sources_noext_abs ${source_noext_abs})
+        list(APPEND json_sources_abs ${source_abs}.json)
       elseif(ext STREQUAL ".sv")
         # SystemVerilog source file
-        list(APPEND sverilog_sources_noext_abs ${source_noext_abs})
+        list(APPEND sverilog_sources_abs ${source_abs}.sv)
       endif()
     endif()
 
@@ -236,17 +238,17 @@ function(ase_add_modelsim_module name)
   endforeach(file_i ${sources_abs})
 
   # ASE module sources relative to current binary dir
-  set(obj_sources_noext_rel)
-  foreach(obj_sources_noext_abs
-      ${prj_sources_noext_abs} ${json_sources_noext_abs} ${sverilog_sources_noext_abs})
-    file(RELATIVE_PATH obj_source_noext_rel
-      ${CMAKE_CURRENT_BINARY_DIR} ${obj_sources_noext_abs})
-    list(APPEND obj_sources_noext_rel ${obj_source_noext_rel})
-  endforeach(obj_sources_noext_abs)
+  set(obj_sources_rel)
+  foreach(obj_sources_abs
+      ${prj_sources_abs} ${json_sources_abs} ${sverilog_sources_abs})
+    file(RELATIVE_PATH obj_source_rel
+      ${CMAKE_CURRENT_BINARY_DIR} ${obj_sources_abs})
+    list(APPEND obj_sources_rel ${obj_source_rel})
+  endforeach(obj_sources_abs)
 
-  if(NOT obj_sources_noext_rel)
+  if(NOT obj_sources_rel)
     message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
-  endif(NOT obj_sources_noext_rel)
+  endif(NOT obj_sources_rel)
 
   # Target for create module platform configuration.
   add_custom_target(${name}_platform_config ALL

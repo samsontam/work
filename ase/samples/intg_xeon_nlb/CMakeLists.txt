@@ -25,32 +25,22 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 project("opae-c-ase-samples-nlb")
-
-include(ase_variables_config)
+include(ase_add_modelsim)
 
 configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
   ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
+
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
 
 if(ASE_POST_INSTALL)
-  configure_file(${ASE_SERVER_RTL}/sources_abs.txt
-    ${PROJECT_BINARY_DIR}/sources_abs.txt)
-
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt
     ${PROJECT_BINARY_DIR}/sources.txt)
-
 else()
-  configure_file(${ASE_SERVER_RTL}/sources_abs.txt.in
-    ${PROJECT_BINARY_DIR}/sources_abs.txt)
-
   configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
     ${PROJECT_BINARY_DIR}/sources.txt)
 
-  configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
-    ${PROJECT_BINARY_DIR}/to_install/sources.txt)
-
-  install(FILES ${PROJECT_BINARY_DIR}/to_install/sources.txt
+  install(FILES ${PROJECT_BINARY_DIR}/sources.txt
     DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
     COMPONENT aseextra)
 
@@ -65,7 +55,7 @@ endif()
 
 set(intg_xeon_nlb_SOURCES
   sources.txt
-  ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
+  ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
 ase_finalize_modelsim_module_linking(intg_xeon_nlb)
