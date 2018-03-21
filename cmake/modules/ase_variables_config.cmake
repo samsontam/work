@@ -55,15 +55,15 @@ endif()
 set(ASE_SAMPLES                ${ASE_SHARE_DIR}/samples)
 set(ASE_SCRIPTS_IN             ${ASE_SHARE_DIR}/in)
 
-set(ASE_SERVER_RTL             ${ASE_SHARE_DIR}/rtl CACHE STRING "Location of ASE server SystemVerilog code")
-set(ASE_PROJECT_SOURCES        "sources.txt"        CACHE STRING "AFU sources input file")
-set(ASE_DISCRETE_EMIF_MODEL    "EMIF_MODEL_BASIC"   CACHE STRING "ASE EMIF discrete memory model")
-set(ASE_TOP_ENTITY             "ase_top"            CACHE STRING "Top entity for the ASE testbench")
+set(ASE_SERVER_RTL             ${ASE_SHARE_DIR}/rtl               CACHE STRING "Location of ASE server SystemVerilog code")
+set(ASE_PROJECT_SOURCES        "sources.txt"                      CACHE STRING "AFU sources input file")
+set(ASE_DISCRETE_EMIF_MODEL    "EMIF_MODEL_BASIC"                 CACHE STRING "ASE EMIF discrete memory model")
+set(ASE_TOP_ENTITY             "ase_top"                          CACHE STRING "Top entity for the ASE testbench")
 
 # Following variables should be local to the project
-set(ASE_TIMESCALE              "1ps/1ps"            CACHE STRING "ASE timescale (default)")
-set(ASE_SIMULATOR              "QUESTA"             CACHE STRING "ASE simulator (default)")
-set(ASE_PLATFORM               "intg_xeon"          CACHE STRING "ASE platform (default)")
+set(ASE_TIMESCALE              "1ps/1ps"                          CACHE STRING "ASE timescale")
+set(ASE_SIMULATOR              "QUESTA"                           CACHE STRING "ASE simulator (default)")
+set(ASE_PLATFORM               "FPGA_PLATFORM_INTG_XEON"          CACHE STRING "ASE platform (default)")
 
 # SW library name
 set(ASE_PKG_FILE               ${ASE_SERVER_RTL}/ase_pkg.sv)
