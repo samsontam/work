@@ -33,21 +33,7 @@ configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
 
-if(ASE_POST_INSTALL)
-  configure_file(${PROJECT_SOURCE_DIR}/sources.txt
-    ${PROJECT_BINARY_DIR}/sources.txt)
-else()
-  configure_file(${PROJECT_SOURCE_DIR}/sources.txt.in
-    ${PROJECT_BINARY_DIR}/sources.txt)
-
-  install(FILES ${PROJECT_BINARY_DIR}/sources.txt
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-
-  install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-
+if(NOT ASE_POST_INSTALL)
   install(DIRECTORY ${PROJECT_BINARY_DIR}/src
     DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
     COMPONENT aseextra)
