@@ -27,15 +27,18 @@
 project("opae-c-ase-samples-nlb")
 include(ase_add_modelsim)
 
+# Define project
 set(intg_xeon_nlb_SOURCES
   sources.txt
   ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
 
+# Additional files which need to be copied (SystemVerilog source code)
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
 
+# Define files to be installed
 if(NOT ASE_POST_INSTALL)
  install(FILES ${PROJECT_BINARY_DIR}/sources.txt
     DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
@@ -50,4 +53,14 @@ if(NOT ASE_POST_INSTALL)
     COMPONENT aseextra)
 endif()
 
+# Set platform
+ase_module_set_platform_name(intg_xeon_nlb intg_xeon)
+
+# Add definitions
+ase_module_add_definitions(intg_xeon_nlb NUM_AFUS=1)
+ase_module_add_definitions(intg_xeon_nlb NLB400_MODE_0)
+ase_module_add_definitions(intg_xeon_nlb PLATFORM_IF_AVAIL)
+ase_module_add_definitions(intg_xeon_nlb FPGA_PLATFORM_INTG_XEON)
+
+# Configure files and finalize target rules
 ase_finalize_modelsim_module_linking(intg_xeon_nlb)

@@ -18,7 +18,7 @@ $QUARTUS_HOME/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
 +incdir+.+./platform_includes+@OPAE_BASE_DIR@/@PLATFORM_IF_RTL@
 
 # Required defines for NLB
-+define+NUM_AFUS=1 +define+NLB400_MODE_0
+# +define+NUM_AFUS=1 +define+NLB400_MODE_0
 
 # Platform includes
 platform_includes/platform_afu_top_config.vh
