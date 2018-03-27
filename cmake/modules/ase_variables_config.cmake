@@ -113,10 +113,15 @@ define_property(TARGET PROPERTY ASE_MODULE_LIBOPAE_LOCATION
   BRIEF_DOCS "Location of the libopae-c-ase-server library of the AFU module."
   FULL_DOCS "Location of the libopae-c-ase-server library of the AFU module.")
 
-# ASE platform (e.g. intg_xeon, discrete, etc)
+# ASE platform name (e.g. intg_xeon, discrete, etc)
 define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_NAME
   BRIEF_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete, etc)."
   FULL_DOCS "Platform utilized between AFU and CPU (e.g. intg_xeon, discrete, etc).")
+
+# ASE platform fullname (e.g. FPGA_PLATFORM_INTG_XEON, etc)
+define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_FULLNAME
+  BRIEF_DOCS "Platform (fullname) utilized between AFU and CPU (e.g. FPGA_PLATFORM_INTG_XEON)."
+  FULL_DOCS "Platform (fullname) utilized between AFU and CPU (e.g. FPGA_PLATFORM_INTG_XEON).")
 
 # ASE module interface (e.g. ccip_std_afu)
 define_property(TARGET PROPERTY ASE_MODULE_PLATFORM_IF
@@ -163,7 +168,7 @@ define_property(TARGET PROPERTY ASE_MODULE_SOURCES_REL
 ############################################################################
 
 #  ase_module_get_platform_name(RESULT_VAR name)
-# Return location of the module work library, determined by the property
+# Return platform name (e.g. intg_xeon, discrete, etc)
 # ASE_MODULE_PLATFORM_NAME
 function(ase_module_get_platform_name RESULT_VAR name)
   if(NOT TARGET ${name})
@@ -177,8 +182,23 @@ function(ase_module_get_platform_name RESULT_VAR name)
   set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
 endfunction(ase_module_get_platform_name RESULT_VAR name)
 
+#  ase_module_get_platform_fullname(RESULT_VAR name)
+# Return platform name (e.g. FPGA_PLATFORM_INTG_XEON, etc)
+# ASE_MODULE_PLATFORM_FULLNAME
+function(ase_module_get_platform_fullname RESULT_VAR name)
+  if(NOT TARGET ${name})
+    message(FATAL_ERROR "\"${name}\" is not really a target.")
+  endif(NOT TARGET ${name})
+  get_property(ase_module_type TARGET ${name} PROPERTY ASE_MODULE_TYPE)
+  if(NOT ase_module_type)
+    message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
+  endif(NOT ase_module_type)
+  get_property(module_location TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_FULLNAME)
+  set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
+endfunction(ase_module_get_platform_fullname RESULT_VAR name)
+
 #  ase_module_get_platform_if(RESULT_VAR name)
-# Return location of the module work library, determined by the property
+# Return platform interface name (e.g. ccip_std_afu)
 # ASE_MODULE_PLATFORM_IF
 function(ase_module_get_platform_if RESULT_VAR name)
   if(NOT TARGET ${name})
@@ -192,10 +212,10 @@ function(ase_module_get_platform_if RESULT_VAR name)
   set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
 endfunction(ase_module_get_platform_if RESULT_VAR name)
 
-#  ase_module_get_libopae_location(RESULT_VAR name)
-# Return location of the OPAE server shared library, determined by the property
-# ASE_MODULE_LIBOPAE_LOCATION
-function(ase_module_get_libopae_location RESULT_VAR name)
+#  ase_module_get_simulator(RESULT_VAR name)
+# Return EDA simulation tool name
+# ASE_MODULE_SIMULATOR
+function(ase_module_get_simulator RESULT_VAR name)
   if(NOT TARGET ${name})
     message(FATAL_ERROR "\"${name}\" is not really a target.")
   endif(NOT TARGET ${name})
@@ -203,9 +223,9 @@ function(ase_module_get_libopae_location RESULT_VAR name)
   if(NOT ase_module_type)
     message(FATAL_ERROR "\"${name}\" is not really a target for ASE module.")
   endif(NOT ase_module_type)
-  get_property(libopae_location TARGET ${name} PROPERTY ASE_MODULE_LIBOPAE_LOCATION)
+  get_property(libopae_location TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR)
   set(${RESULT_VAR} ${module_location} PARENT_SCOPE)
-endfunction(ase_module_get_libopae_location RESULT_VAR module)
+endfunction(ase_module_get_simulator RESULT_VAR module)
 
 ############################################################################
 ## Helpers to add some ASE module properties ###############################
