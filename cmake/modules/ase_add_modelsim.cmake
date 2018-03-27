@@ -169,184 +169,152 @@ function(ase_add_modelsim_module name)
   # List of all source files, which are given.
   set(sources ${ase_add_modelsim_module_UNPARSED_ARGUMENTS})
 
-  # Sources with absolute paths
-  to_abs_path(sources_abs ${sources})
+  # Calculate sources absolute paths
+  to_abs_path(ase_module_sources_abs ${sources})
 
-  # list of files from which module building is depended
-  set(source_files)
+  # List of files from which module building is depended
+  set(ase_modules_sources)
 
   # Modelsim project files (.txt)
-  set(prj_sources_noext_abs)
+  set(prj_ase_module_sources_abs)
   # AFU metadata files (.json)
-  set(json_sources_noext_abs)
-  # SystemVerilog files (.sv)
-  set(sverilog_sources_noext_abs)
-  # Sources to be configured ('in' extension)
-  set(in_sources_noext_abs)
+  set(json_ase_module_sources_abs)
+  # SystemVerilog source files (.sv)
+  set(sverilog_ase_module_sources_abs)
+  # SystemVerilog header files (.svh)
+  set(sverilog_headers_abs)
 
   # Categorize sources
-  foreach(file_i ${sources_abs})
+  foreach(file_i ${ase_module_sources_abs})
     get_filename_component(ext ${file_i} EXT)
     get_filename_component(source_noext "${file_i}" NAME_WE)
     get_filename_component(source_dir "${file_i}" PATH)
     get_filename_component(source_filename "${file_i}" NAME)
 
-    # Copy source files for the module
-    if(ext STREQUAL ".txt.in"
-        OR ext STREQUAL ".sh.in"
+    # Calculate module locations
+    if(ext STREQUAL ".sh.in"
         OR ext STREQUAL ".tcl.in"
         OR ext STREQUAL ".cfg.in"
-        OR ext STREQUAL ".in"
         OR ext STREQUAL ".txt"
         OR ext STREQUAL ".sv"
+        OR ext STREQUAL ".svh"
         OR ext STREQUAL ".v"
+        OR ext STREQUAL ".vh"
         OR ext STREQUAL ".json")
 
-      # Copy source into binary tree, if needed
-      # copy_source_to_binary_dir("${file_i}" file_i)
-
-      if(ext STREQUAL ".txt.in")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_noext}.txt)
-        if(NOT ASE_POST_INSTALL)
-          install(FILES ${PROJECT_BINARY_DIR}/sources.txt
-            DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-            COMPONENT aseextra)
-        endif()
-
-      elseif(ext STREQUAL ".sh.in")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_noext}.sh)
-      elseif(ext STREQUAL ".tcl.in")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_noext}.tcl)
-      elseif(ext STREQUAL ".cfg.in")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_noext}.cfg)
-      elseif(ext STREQUAL ".in")
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_noext})
-      else()
-        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
+      # Categorize sources
+      set(source_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
+      if(ext STREQUAL ".txt")
+        # Project source file
+        list(APPEND prj_ase_module_sources_abs ${source_abs}.txt)
+      elseif(ext STREQUAL ".json")
+        # JSON source file
+        list(APPEND json_ase_module_sources_abs ${source_abs}.json)
+      elseif(ext STREQUAL ".sv")
+        # SystemVerilog source file
+        list(APPEND sverilog_ase_module_sources_abs ${source_abs}.sv)
+      elseif(ext STREQUAL ".svh")
+        # SystemVerilog source file
+        list(APPEND sverilog_headers_abs ${source_abs}.svh)
       endif()
-
-
-      install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
-        DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-        COMPONENT aseextra)
     endif()
 
-    # Categorize sources
-    set(source_abs "${CMAKE_CURRENT_BINARY_DIR}/${source_noext}")
-    if(ext STREQUAL ".txt.in" OR ext STREQUAL ".txt")
-      # Project source file
-      list(APPEND prj_sources_abs ${source_abs}.txt)
-    elseif(ext STREQUAL ".json")
-      # JSON source file
-      list(APPEND json_sources_abs ${source_abs}.json)
-    elseif(ext STREQUAL ".sv")
-      # SystemVerilog source file
-      list(APPEND sverilog_sources_abs ${source_abs}.sv)
-    endif()
-  endif()
+    # Add file to depend list
+    list(APPEND ase_modules_sources ${file_i})
+  endforeach(file_i ${ase_module_sources_abs})
 
-  # Add file to depend list
-  list(APPEND source_files ${file_i})
-endforeach(file_i ${sources_abs})
+  # ASE module sources relative to current binary dir
+  set(ase_module_sources_rel)
+  foreach(file_i
+      ${prj_ase_module_sources_abs}
+      ${json_ase_module_sources_abs}
+      ${sverilog_ase_module_sources_abs}
+      ${sverilog_headers_abs})
+    file(RELATIVE_PATH ase_module_source_rel
+      ${CMAKE_CURRENT_BINARY_DIR} ${file_i})
+    list(APPEND ase_module_sources_rel ${ase_module_source_rel})
+  endforeach(file_i)
 
-# ASE module sources relative to current binary dir
-set(obj_sources_rel)
-foreach(obj_sources_abs
-    ${prj_sources_abs} ${json_sources_abs} ${sverilog_sources_abs})
-  file(RELATIVE_PATH obj_source_rel
-    ${CMAKE_CURRENT_BINARY_DIR} ${obj_sources_abs})
-  list(APPEND obj_sources_rel ${obj_source_rel})
-endforeach(obj_sources_abs)
+  if(NOT ase_module_sources_rel)
+    message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
+  endif(NOT ase_module_sources_rel)
 
-if(NOT obj_sources_rel)
-  message(FATAL_ERROR "List of object files for building ASE module ${name} is empty.")
-endif(NOT obj_sources_rel)
+  # Target for create module platform configuration.
+  add_custom_target(${name}_platform_config ALL
+    DEPENDS ${ase_modules_sources}
+    "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
-# Target for create module platform configuration.
-add_custom_target(${name}_platform_config ALL
-  DEPENDS ${source_files}
-  "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
+  # Target to build the ASE module
+  add_custom_target (${name} ALL
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
+  add_dependencies(${name} ${name}_platform_config)
 
-# Define SystemVerilog compilation target for ASE module
-add_custom_target (${name} ALL
-  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
-add_dependencies(${name} ${name}_platform_config)
+  # Fill properties for the target using default values
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE                "verilog")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_NAME                ${name})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_MODULE_LOCATION     ${CMAKE_CURRENT_BINARY_DIR}/work)
 
-# Fill properties for the target (defaults).
-set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE                "verilog")
-set_property(TARGET ${name} PROPERTY ASE_MODULE_NAME                ${name})
-set_property(TARGET ${name} PROPERTY ASE_MODULE_MODULE_LOCATION     ${CMAKE_CURRENT_BINARY_DIR}/work)
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR           "questa")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR_TIMESCALE "1ps/1ps")
 
-set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR           "questa")
-set_property(TARGET ${name} PROPERTY ASE_MODULE_SIMULATOR_TIMESCALE "1ps/1ps")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
-set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       "intg_xeon")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         "ccip_std_afu")
 
-set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       "intg_xeon")
-set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         "ccip_std_afu")
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_BINARY_DIR          ${CMAKE_CURRENT_BINARY_DIR})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES             ${ase_module_sources})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_ABS         ${ase_module_ase_module_sources_abs})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_REL         ${ase_module_sources_rel})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCE_DIR          ${CMAKE_CURRENT_SOURCE_DIR})
 
-set_property(TARGET ${name} PROPERTY ASE_MODULE_BINARY_DIR          ${CMAKE_CURRENT_BINARY_DIR})
-set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES             ${source_files})
-set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCES_REL         ${obj_sources_rel})
-set_property(TARGET ${name} PROPERTY ASE_MODULE_SOURCE_DIR          ${CMAKE_CURRENT_SOURCE_DIR})
+  # Target specific properties
+  set(vlog_flags_local)
+  get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  foreach(definition ${definitions_local})
+    list(APPEND vlog_flags_local +define+${definition})
+  endforeach(definition ${definitions_local})
 
-# afu_platform_config --sim --tgt=rtl --src ccip_st6d_afu.json  intg_xeon
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
-ase_module_get_platform_name(ase_platform ${name})
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMAND ${AFU_PLATFORM_CONFIG}
-  --sim
-  --tgt=platform_includes
-  --src ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json
-  ${ase_platform}
-  COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
+  get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  foreach(dir ${include_dirs_local})
+    list(APPEND vlog_flags_local +incdir+${dir})
+  endforeach(dir ${include_dirs_local})
 
-# Target specific properties
-set(vlog_flags_local)
-get_property(vlog_definitions_local TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-foreach(definition ${vlog_definitions_local})
-  list(APPEND vlog_flags_local +define+${definition})
-endforeach(definition ${vlog_definitions_local})
+  # Create target specific cache entries
+  set(ASE_MODULE_${name}_DIRECTORY_FLAGS                ${vlog_flags_dir}           CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_TARGET_FLAGS                   ${vlog_flags_local}         CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_SOURCES                        ${ase_module_sources}       CACHE STRING "List of source files used to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_SOURCES_ABS                    ${ase_module_sources_abs}   CACHE STRING "List of source files used to build ASE module '${name}'.")
+  set(ASE_MODULE_${name}_SOURCES_REL                    ${ase_module_sources_rel}}  CACHE STRING "List of source files used to build ASE module '${name}'.")
 
-get_property(include_dirs_local TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
-foreach(dir ${include_dirs_local})
-  list(APPEND vlog_flags_local +incdir+${dir})
-endforeach(dir ${include_dirs_local})
+  mark_as_advanced(
+    ASE_MODULE_${name}_DIRECTORY_FLAGS
+    ASE_MODULE_${name}_TARGET_FLAGS
+    ASE_MODULE_${name}_SOURCES
+    ASE_MODULE_${name}_SOURCES_ABS
+    ASE_MODULE_${name}_SOURCES_REL)
 
-# Create target specific cache entries
-set(ASE_MODULE_${name}_DIR_FLAGS           ${vlog_flags_dir}    CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
-set(ASE_MODULE_${name}_TARGET_FLAGS        ${vlog_flags_local}  CACHE STRING "Compiler flags used by Questa to build ASE module '${name}'.")
-set(ASE_MODULE_${name}_SOURCES             ${source_files}      CACHE STRING "List of source files used to build ASE module '${name}'.")
-set(ASE_MODULE_${name}_SOURCES_REL         ${obj_sources_rel}}  CACHE STRING "List of source files used to build ASE module '${name}'.")
+  # Cached properties
+  set_property(CACHE ASE_MODULE_${name}_DIRECTORY_FLAGS    PROPERTY VALUE ${vlog_flags})
+  set_property(CACHE ASE_MODULE_${name}_TARGET_FLAGS       PROPERTY VALUE ${vlog_flags_local})
+  set_property(CACHE ASE_MODULE_${name}_SOURCES            PROPERTY VALUE ${ase_module_sources})
+  set_property(CACHE ASE_MODULE_${name}_SOURCES_ABS        PROPERTY VALUE ${ase_module_sources_abs})
+  set_property(CACHE ASE_MODULE_${name}_SOURCES_REL        PROPERTY VALUE ${ase_module_sources_rel})
 
-mark_as_advanced(
-  ASE_MODULE_${name}_DIR_FLAGS
-  ASE_MODULE_${name}_TARGET_FLAGS
-  ASE_MODULE_${name}_SOURCES
-  ASE_MODULE_${name}_SOURCES_REL)
+  # Add target to the global list of modules for built.
+  set_property(GLOBAL APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
 
-# Cached properties
-set_property(CACHE ASE_MODULE_${name}_DIR_FLAGS    PROPERTY VALUE ${vlog_flags})
-set_property(CACHE ASE_MODULE_${name}_TARGET_FLAGS PROPERTY VALUE ${vlog_flags_local})
-set_property(CACHE ASE_MODULE_${name}_SOURCES      PROPERTY VALUE ${source_files})
-set_property(CACHE ASE_MODULE_${name}_SOURCES_REL  PROPERTY VALUE ${obj_sources_rel})
-
-# Add target to the global list of modules for built.
-set_property(GLOBAL APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
-
-# Keep track of which modules will be built from same directory
-set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-  APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
+  # Keep track of which modules will be built from same directory
+  set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
 
 endfunction(ase_add_modelsim_module name)
 
-# ase_finalize_modelsim_linking()
+# ase_finalize_modelsim_linking(m)
 #
-# Should be called after all kernel modules and their links defined.
-# Usually this is the end of main CMakeLists.txt file.
+# Should be called after ASE module `m` is defined.
 function(ase_finalize_modelsim_module_linking m)
 
   _get_per_build_var(vlog_flags QUESTA_VLOG_FLAGS)
@@ -372,20 +340,81 @@ function(ase_finalize_modelsim_module_linking m)
   # Get object properties
   get_property(module_binary_dir TARGET ${m} PROPERTY ASE_MODULE_BINARY_DIR)
   get_property(module_source_dir TARGET ${m} PROPERTY ASE_MODULE_SOURCE_DIR)
-  get_property(module_name TARGET ${m} PROPERTY ASE_MODULE_NAME)
-  get_property(obj_sources
+  get_property(module_name       TARGET ${m} PROPERTY ASE_MODULE_NAME)
+
+  # Get object sources
+  get_property(ase_module_sources_rel
     CACHE ASE_MODULE_${m}_SOURCES_REL
     PROPERTY VALUE)
-  get_property(questa_flags_definitions_local TARGET ${m} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-  get_property(include_dirs_local TARGET ${m} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  get_property(ase_module_sources_abs
+    CACHE ASE_MODULE_${m}_SOURCES_REL
+    PROPERTY VALUE)
+
+  # Get object compilation flags
   get_property(vlog_flags_local
     CACHE ASE_MODULE_${m}_TARGET_FLAGS
     PROPERTY VALUE)
 
-  # Fetch modules sharing same .ko directory
+  get_property(definitions_local              TARGET ${m} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  get_property(include_dirs_local             TARGET ${m} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+
+  # Target specific properties
+  set(vlog_flags_local)
+  get_property(vlog_definitions_local TARGET ${m} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
+  foreach(definition ${definitions_local})
+    list(APPEND vlog_flags_local +define+${definition})
+  endforeach(definition ${definitions_local})
+
+  get_property(include_dirs_local TARGET ${m} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES)
+  foreach(dir ${include_dirs_local})
+    list(APPEND vlog_flags_local +incdir+${dir})
+  endforeach(dir ${include_dirs_local})
+
+  # Copy + configure source files
+  foreach(file_i ${ase_module_sources_abs})
+    get_filename_component(ext             ${file_i}   EXT)
+    get_filename_component(source_noext    "${file_i}" NAME_WE)
+    get_filename_component(source_dir      "${file_i}" PATH)
+    get_filename_component(source_filename "${file_i}" NAME)
+
+    # Copy source files for the module
+    if(ext STREQUAL ".sh.in"
+        OR ext STREQUAL ".tcl.in"
+        OR ext STREQUAL ".cfg.in"
+        OR ext STREQUAL ".txt"
+        OR ext STREQUAL ".sv"
+        OR ext STREQUAL ".svh"
+        OR ext STREQUAL ".v"
+        OR ext STREQUAL ".vh"
+        OR ext STREQUAL ".json")
+
+      # Copy source into binary tree, if needed
+      # copy_source_to_binary_dir("${file_i}" file_i)
+      if(ext STREQUAL ".txt")
+        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
+      else()
+        configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
+      endif()
+    endif()
+  endforeach(file_i ${ase_module_sources_abs})
+
+  # Fetch modules sharing same directory
   get_property(ase_module_targets_per_directory
     DIRECTORY "${module_source_dir}"
     PROPERTY ASE_MODULE_TARGETS)
+
+  # afu_platform_config --sim --tgt=rtl --src ccip_st6d_afu.json  intg_xeon
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/platform_includes)
+  set(ase_platform)
+  ase_module_get_platform_name(ase_platform ${m})
+  add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND ${AFU_PLATFORM_CONFIG}
+    --sim
+    --tgt=platform_includes
+    --src ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json
+    ${ase_platform}
+    COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/platform_includes/platform_afu_top_config.vh")
 
   # Define DPI header file generation rule
   file(MAKE_DIRECTORY ${module_binary_dir}/include)

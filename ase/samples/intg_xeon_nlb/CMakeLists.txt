@@ -27,21 +27,27 @@
 project("opae-c-ase-samples-nlb")
 include(ase_add_modelsim)
 
-configure_file(${PROJECT_SOURCE_DIR}/ccip_std_afu.json
-  ${PROJECT_BINARY_DIR}/ccip_std_afu.json)
-
-file(COPY ${PROJECT_SOURCE_DIR}/src
-  DESTINATION ${PROJECT_BINARY_DIR})
-
-if(NOT ASE_POST_INSTALL)
-  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-endif()
-
 set(intg_xeon_nlb_SOURCES
   sources.txt
   ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
+
+file(COPY ${PROJECT_SOURCE_DIR}/src
+  DESTINATION ${PROJECT_BINARY_DIR})
+
+if(NOT ASE_POST_INSTALL)
+ install(FILES ${PROJECT_BINARY_DIR}/sources.txt
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+ install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+endif()
+
 ase_finalize_modelsim_module_linking(intg_xeon_nlb)
