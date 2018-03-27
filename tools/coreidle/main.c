@@ -164,7 +164,7 @@ int main( int argc, char** argv )
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (coreidleCmdLine.socket >0){
+	if (coreidleCmdLine.socket >=0){
 		result = fpgaPropertiesSetSocketID(filter, coreidleCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
