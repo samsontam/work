@@ -55,7 +55,7 @@ set(ASESW_FILE_LIST
 add_library(opae-c-ase-server SHARED ${ASESW_FILE_LIST})
 target_link_libraries(opae-c-ase-server rt safestr)
 
-# Assure library is relocatable
+# Build-chain setup
 set_property(TARGET opae-c-ase-server PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_compile_definitions(opae-c-ase-server
@@ -63,12 +63,6 @@ target_compile_definitions(opae-c-ase-server
   SIM_SIDE=1
   SIMULATOR=${ASE_SIMULATOR}
   ASE_PLATFORM=${ASE_PLATFORM})
-
-if(ASE_SIMULATOR STREQUAL "QUESTA")
-  find_package(Questa)
-endif()
-
-message("location at ${libsvdpi_INCLUDE_DIRS}")
 
 target_include_directories(opae-c-ase-server PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>

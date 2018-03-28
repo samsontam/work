@@ -62,11 +62,11 @@ list(APPEND questa_flags -timescale ${ASE_TIMESCALE})
 list(APPEND questa_flags -work work)
 list(APPEND questa_flags -novopt)
 _declare_per_build_vars(QUESTA_VLOG_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
-set(QUESTA_VLOG_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_DEBUG          ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 set(QUESTA_VLOG_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
-set(QUESTA_VLOG_FLAGS_COVERAGE ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_RELEASE        ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_MINSIZEREL     ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_COVERAGE       ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 
 # VSIM flags
 set(questa_flags)
@@ -79,11 +79,11 @@ list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
 list(APPEND questa_flags -l vlog_run.log)
 _declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
-set(QUESTA_VSIM_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_DEBUG          ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 set(QUESTA_VSIM_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
-set(QUESTA_VSIM_FLAGS_COVERAGE ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_RELEASE        ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_MINSIZEREL     ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_COVERAGE       ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 
 ############################################################################
 ## Setup Questa directory-specific flags ###################################
@@ -224,7 +224,7 @@ function(ase_add_modelsim_module name)
         list(APPEND sverilog_ase_module_sources_abs ${source_abs}.sv)
       elseif(ext STREQUAL ".svh")
         # SystemVerilog source file
-        list(APPEND sverilog_headers_abs ${source_abs}.svh)
+        list(APPEND sverilog_ase_module_headers_abs ${source_abs}.svh)
       endif()
     endif()
 
@@ -238,7 +238,7 @@ function(ase_add_modelsim_module name)
       ${prj_ase_module_sources_abs}
       ${json_ase_module_sources_abs}
       ${sverilog_ase_module_sources_abs}
-      ${sverilog_headers_abs})
+      ${sverilog_ase_module_headers_abs})
     file(RELATIVE_PATH ase_module_source_rel
       ${CMAKE_CURRENT_BINARY_DIR} ${file_i})
     list(APPEND ase_module_sources_rel ${ase_module_source_rel})
@@ -319,7 +319,83 @@ function(ase_add_modelsim_module name)
   set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     APPEND PROPERTY ASE_MODULE_TARGETS "${name}")
 
+  # The rule to clean files
+  _ase_module_clean_files(${name}
+    SV_SOURCE       ${sverilog_ase_module_sources_abs}
+    JSON_SOURCE     ${json_ase_module_sources_abs}
+    PRJ_SOURCE      ${prj_ase_module_sources_abs}
+    SHIPPED_SOURCE  ${shipped_ase_module_sources_abs})
+
 endfunction(ase_add_modelsim_module name)
+
+#  _ase_module_clean_files(module_name ...)
+#
+# Tell CMake that intermediate files, created by kbuild system,
+# should be cleaned with 'make clean'.
+function(_ase_module_clean_files module_name)
+  cmake_parse_arguments(ase_module_clean "" "" "SV_SOURCE;JSON_SOURCE;PRJ_SOURCE;SHIPPED_SOURCE" ${ARGN})
+  if(ase_module_clean_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unparsed arguments")
+  endif(ase_module_clean_UNPARSED_ARGUMENTS)
+
+  # List common files (names only) for cleaning
+  set(common_files_names
+    "_vmake"
+    "_info"
+    "_lib1_0.qdb"
+    "_lib1_0.qpg"
+    "_lib1_0.qtl"
+    "_lib.qdb"
+    "_dpi" # Directory
+    "work" # Directory
+    "vlog.log"
+    "platform_dpi.h")
+
+  # List module name-depending files (extensions only) for cleaning
+  set(name_files_ext
+    ".o"
+    ".sv"
+    ".svh"
+    ".v"
+    ".vh")
+
+  # List source name-depending files (extensions only) for cleaning
+  set(source_name_files_ext
+    ".sv"
+    ".svh"
+    ".v"
+    ".vh"
+    ".o")
+
+  # Now collect all sort of files into list
+  set(files_list)
+  foreach(name ${common_files_names})
+    list(APPEND files_list "${CMAKE_CURRENT_BINARY_DIR}/${name}")
+  endforeach(name ${common_files_names})
+
+  foreach(ext ${name_files_ext})
+    list(APPEND files_list
+      "${CMAKE_CURRENT_BINARY_DIR}/${module_name}${ext}")
+  endforeach(ext ${name_files_ext})
+
+  # All the types of sources are processed in a similar way
+  foreach(obj_source_noext_abs
+      ${ase_module_clean_SV_SOURCE}
+      ${ase_module_clean_JSON_SOURCE}
+      ${ase_module_clean_PRJ_SOURCE}
+      ${ase_module_clean_SHIPPED_SOURCE})
+
+    get_filename_component(dir ${obj_source_noext_abs} PATH)
+    get_filename_component(name ${obj_source_noext_abs} NAME)
+    foreach(ext ${source_name_files_ext})
+      list(APPEND files_list "${dir}/${name}${ext}")
+    endforeach(ext ${source_name_files_ext})
+  endforeach(obj_source_noext_abs)
+
+  # Tell CMake that given files should be cleaned.
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${files_list}")
+
+endfunction(_ase_module_clean_files module_name)
 
 # ase_finalize_modelsim_linking(m)
 #
@@ -356,7 +432,7 @@ function(ase_finalize_modelsim_module_linking m)
     CACHE ASE_MODULE_${m}_SOURCES_REL
     PROPERTY VALUE)
   get_property(ase_module_sources_abs
-    CACHE ASE_MODULE_${m}_SOURCES_REL
+    CACHE ASE_MODULE_${m}_SOURCES_ABS
     PROPERTY VALUE)
 
   # Get object compilation flags
