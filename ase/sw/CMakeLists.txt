@@ -81,4 +81,4 @@ set_target_properties(opae-c-ase-server PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-add_dependencies(opae-c-ase-server vlog_compile)
+# add_dependencies(opae-c-ase-server vlog_compile)

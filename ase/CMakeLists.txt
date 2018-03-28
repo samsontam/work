@@ -52,8 +52,8 @@ add_subdirectory(api)
 # ASE RTL code
 add_subdirectory(rtl)
 
-# # ASE server
-# add_subdirectory(sw)
+# ASE server
+add_subdirectory(sw)
 
 # ASE samples
 if(BUILD_ASE_SAMPLES)
