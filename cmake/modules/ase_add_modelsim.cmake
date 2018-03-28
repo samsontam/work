@@ -66,13 +66,14 @@ set(QUESTA_VLOG_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa global
 set(QUESTA_VLOG_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 set(QUESTA_VLOG_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 set(QUESTA_VLOG_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
+set(QUESTA_VLOG_FLAGS_COVERAGE ${questa_flags} CACHE STRING "Modelsim/Questa global compiler flags" FORCE)
 
 # VSIM flags
 set(questa_flags)
 list(APPEND questa_flags -novopt)
 list(APPEND questa_flags -c)
 list(APPEND questa_flags -dpioutoftheblue 1)
-list(APPEND questa_flags -sv_lib ${ASE_SHOBJ_NAME})
+list(APPEND questa_flags -sv_lib ${CMAKE_BINARY_DIR}/lib/${ASE_SHOBJ_NAME})
 list(APPEND questa_flags -do vsim_run.tcl)
 list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
@@ -82,6 +83,7 @@ set(QUESTA_VSIM_FLAGS_DEBUG ${questa_flags} CACHE STRING "Modelsim/Questa simula
 set(QUESTA_VSIM_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 set(QUESTA_VSIM_FLAGS_RELEASE ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 set(QUESTA_VSIM_FLAGS_MINSIZEREL ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
+set(QUESTA_VSIM_FLAGS_COVERAGE ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 
 ############################################################################
 ## Setup Questa directory-specific flags ###################################
@@ -156,6 +158,14 @@ function(ase_add_modelsim_module name)
     ${ASE_REGRESS_SCRIPT})
   configure_file(${ASE_SCRIPTS_IN}/vsim_run.tcl.in
     ${ASE_SIMULATION_SCRIPT})
+
+  # Set vsim flags in server script
+  _get_per_build_var(vsim_flags_list QUESTA_VSIM_FLAGS)
+  set(vsim_flags)
+  foreach(flag ${vsim_flags_list})
+    set(vsim_flags "${vsim_flags} ${flag}")
+  endforeach(flag ${vsim_flags_list})
+
   configure_file(${ASE_SCRIPTS_IN}/ase_server.in
     ${ASE_WORKDIR}/tmp/ase_server.sh)
 

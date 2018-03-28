@@ -33,25 +33,8 @@ set(intg_xeon_nlb_SOURCES
   ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
-
-# Additional files which need to be copied (SystemVerilog source code)
 file(COPY ${PROJECT_SOURCE_DIR}/src
   DESTINATION ${PROJECT_BINARY_DIR})
-
-# Define files to be installed
-if(NOT ASE_POST_INSTALL)
- install(FILES ${PROJECT_BINARY_DIR}/sources.txt
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-
- install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-
-  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
-endif()
 
 # Set platform
 ase_module_set_platform_name(intg_xeon_nlb intg_xeon)
@@ -64,3 +47,22 @@ ase_module_add_definitions(intg_xeon_nlb FPGA_PLATFORM_INTG_XEON)
 
 # Configure files and finalize target rules
 ase_finalize_modelsim_module_linking(intg_xeon_nlb)
+
+######################################################################
+# Additional files which need to be copied (SystemVerilog source code)
+######################################################################
+
+# Define files to be installed
+if(NOT ASE_POST_INSTALL)
+  install(FILES ${PROJECT_BINARY_DIR}/sources.txt
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+  install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
+    COMPONENT aseextra)
+endif()

@@ -277,6 +277,7 @@ endfunction(ase_module_include_directories target_name dir)
 macro(_declare_per_build_vars variable doc_pattern)
   set(_build_type)
   foreach(t
+      COVERAGE "coverage"
       RELEASE "release"
       DEBUG "debug"
       RELWITHDEBINFO "Release With Debug Info"
