@@ -29,12 +29,12 @@ include(ase_add_modelsim)
 
 # Define project
 set(intg_xeon_nlb_SOURCES
-  sources.txt
-  ccip_std_afu.json)
+  hw/sources.txt
+  hw/ccip_std_afu.json)
 ase_add_modelsim_module(intg_xeon_nlb
   ${intg_xeon_nlb_SOURCES})
-file(COPY ${PROJECT_SOURCE_DIR}/src
-  DESTINATION ${PROJECT_BINARY_DIR})
+file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
+  DESTINATION ${PROJECT_BINARY_DIR}/hw)
 
 # Set platform
 ase_module_set_platform_name(intg_xeon_nlb intg_xeon)
@@ -55,14 +55,14 @@ ase_finalize_modelsim_module_linking(intg_xeon_nlb)
 # Define files to be installed
 if(NOT ASE_POST_INSTALL)
   install(FILES ${PROJECT_BINARY_DIR}/sources.txt
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb/hw
+    COMPONENT asesamples)
 
-  install(FILES ${PROJECT_BINARY_DIR}/ccip_std_afu.json
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
+  install(FILES ${PROJECT_BINARY_DIR}/hw/ccip_std_afu.json
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb/hw
+    COMPONENT asesamples)
 
-  install(DIRECTORY ${PROJECT_BINARY_DIR}/src
-    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb
-    COMPONENT aseextra)
+  install(DIRECTORY ${PROJECT_BINARY_DIR}/hw/rtl
+    DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb/hw
+    COMPONENT asesamples)
 endif()

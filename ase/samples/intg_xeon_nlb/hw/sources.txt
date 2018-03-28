@@ -29,23 +29,23 @@ platform_includes/platform_afu_top_config.vh
 -F @PROJECT_BINARY_DIR@/sources_ase_server.txt
 
 # QSYS-IPs
-@PROJECT_SOURCE_DIR@/src/lpbk1_RdRspRAM2PORT.v
-@PROJECT_SOURCE_DIR@/src/lpbk1_RdRspRAM2PORT_ram_2port_160_5m77a5a.v
-@PROJECT_SOURCE_DIR@/src/req_C1TxRAM2PORT_ram_2port_160_nfprwsy.v
-@PROJECT_SOURCE_DIR@/src/req_C1TxRAM2PORT.v
+@PROJECT_SOURCE_DIR@/hw/rtl/lpbk1_RdRspRAM2PORT.v
+@PROJECT_SOURCE_DIR@/hw/rtl/lpbk1_RdRspRAM2PORT_ram_2port_160_5m77a5a.v
+@PROJECT_SOURCE_DIR@/hw/rtl/req_C1TxRAM2PORT_ram_2port_160_nfprwsy.v
+@PROJECT_SOURCE_DIR@/hw/rtl/req_C1TxRAM2PORT.v
 
 # NLB RTL code
-@PROJECT_SOURCE_DIR@/src/sys_cfg_pkg.svh
-@PROJECT_SOURCE_DIR@/src/nlb_lpbk.sv
-@PROJECT_SOURCE_DIR@/src/nlb_csr.sv
-@PROJECT_SOURCE_DIR@/src/ccip_std_afu.sv
-@PROJECT_SOURCE_DIR@/src/nlb_C1Tx_fifo.sv
-@PROJECT_SOURCE_DIR@/src/ccip_debug.sv
-@PROJECT_SOURCE_DIR@/src/arbiter.sv
-@PROJECT_SOURCE_DIR@/src/requestor.sv
-@PROJECT_SOURCE_DIR@/src/test_lpbk1.sv
-@PROJECT_SOURCE_DIR@/src/ccip_interface_reg.sv
-@PROJECT_SOURCE_DIR@/src/green_ccip_if_reg.sv
-@PROJECT_SOURCE_DIR@/src/test_rdwr.sv
-@PROJECT_SOURCE_DIR@/src/test_sw1.sv
-@PROJECT_SOURCE_DIR@/src/nlb_gram_sdp.v
+@PROJECT_SOURCE_DIR@/hw/rtl/sys_cfg_pkg.svh
+@PROJECT_SOURCE_DIR@/hw/rtl/nlb_lpbk.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/nlb_csr.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/ccip_std_afu.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/nlb_C1Tx_fifo.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/ccip_debug.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/arbiter.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/requestor.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/test_lpbk1.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/ccip_interface_reg.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/green_ccip_if_reg.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/test_rdwr.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/test_sw1.sv
+@PROJECT_SOURCE_DIR@/hw/rtl/nlb_gram_sdp.v
