@@ -26,6 +26,7 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 include(ase_variables_config)
+include(ase_add_dpic)
 
 ############################################################################
 ## Fetch tool and script locations #########################################
@@ -76,11 +77,9 @@ list(APPEND questa_flags -c)
 list(APPEND questa_flags -dpioutoftheblue 1)
 list(APPEND questa_flags -dpicpppath ${CMAKE_C_COMPILER})
 list(APPEND questa_flags -cpppath ${CMAKE_C_COMPILER})
-list(APPEND questa_flags -sv_lib ${CMAKE_BINARY_DIR}/lib/${ASE_SHOBJ_NAME})
 list(APPEND questa_flags -do vsim_run.tcl)
 list(APPEND questa_flags -sv_seed 1234)
 list(APPEND questa_flags -L ${ALTERA_MEGAFUNCTIONS})
-list(APPEND questa_flags -l vlog_run.log)
 _declare_per_build_vars(QUESTA_VSIM_FLAGS "Compiler flags used by Modelsim/Questa during %build% builds.")
 set(QUESTA_VSIM_FLAGS_DEBUG          ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
 set(QUESTA_VSIM_FLAGS_RELWITHDEBINFO ${questa_flags} CACHE STRING "Modelsim/Questa simulator flags" FORCE)
@@ -164,6 +163,9 @@ function(ase_add_modelsim_module name)
 
   # Set vsim flags in server script
   _get_per_build_var(vsim_flags_list QUESTA_VSIM_FLAGS)
+  list(APPEND vsim_flags_list -sv_lib ${CMAKE_BINARY_DIR}/lib/${ASE_SHOBJ_NAME}-${name})
+  list(APPEND vsim_flags_list -l vlog_run.log)
+
   set(vsim_flags)
   foreach(flag ${vsim_flags_list})
     set(vsim_flags "${vsim_flags} ${flag}")
@@ -260,6 +262,12 @@ function(ase_add_modelsim_module name)
   add_custom_target (${name} ALL
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/include/platform_dpi.h")
   add_dependencies(${name} ${name}_platform_config)
+
+  # Target to build DPI C library
+  ase_add_dpic_module(${name})
+
+  # Assure compilation occurs after generation of DPI header file
+  add_dependencies(opae-c-ase-server-${name} ${name})
 
   # Fill properties for the target using default values
   set_property(TARGET ${name} PROPERTY ASE_MODULE_TYPE                "verilog")
