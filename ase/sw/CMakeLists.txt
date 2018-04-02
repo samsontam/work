@@ -60,6 +60,7 @@ set_property(TARGET opae-c-ase-server PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_compile_definitions(opae-c-ase-server
   PRIVATE
+  _GLIBCXX_USE_CXX11_ABI=0
   SIM_SIDE=1
   SIMULATOR=${ASE_SIMULATOR}
   ASE_PLATFORM=${ASE_PLATFORM})
