@@ -14,7 +14,7 @@ $QUARTUS_HOME/eda/sim_lib/altera_lnsim.sv
 $QUARTUS_HOME/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v
 
 # Required include directories
-+incdir+@ASE_SHARE_DIR@/samples/intg_xeon_nlb/src
++incdir+@ASE_SHARE_DIR@/samples/intg_xeon_nlb/hw/rtl
 +incdir+.+./platform_includes+@OPAE_BASE_DIR@/@PLATFORM_IF_RTL@
 
 # Required defines for NLB

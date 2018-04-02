@@ -31,7 +31,6 @@
 `include "platform_if.vh"
 `include "afu_json_info.vh"
 
-
 module ccip_std_afu
    (
     // CCI-P Clocks and Resets
@@ -190,7 +189,7 @@ module ccip_std_afu
             mem_addr <= t_ccip_clAddr'(sRx.c0.data);
         end
     end
-    
+
 
 
     // =========================================================================

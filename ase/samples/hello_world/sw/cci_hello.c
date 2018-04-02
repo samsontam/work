@@ -38,7 +38,8 @@
 #include <opae/fpga.h>
 
 // State from the AFU's JSON file, extracted using OPAE's afu_json_mgr script
-#include "afu_json_info.h"
+// #include "afu_json_info.h"
+#define AFU_ACCEL_UUID "C6AA954A-9B91-4A37-ABC1-1D9F0709DCC3"
 
 #define CACHELINE_BYTES 64
 #define CL(x) ((x) * CACHELINE_BYTES)
