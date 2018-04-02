@@ -31,3 +31,4 @@ project("opae-c-ase-samples")
 
 include(ase_add_modelsim)
 add_subdirectory(intg_xeon_nlb)
+add_subdirectory(hello_world)
