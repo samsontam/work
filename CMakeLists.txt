@@ -37,9 +37,9 @@ if(EXISTS ${GIT_EXECUTABLE})
     OUTPUT_VARIABLE GIT_COMMIT_HASH
     RESULT_VARIABLE GIT_LOG_RESULT
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
-      set(GIT_COMMIT_HASH unknown)
-    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
+  if(NOT ${GIT_LOG_RESULT} EQUAL 0)
+    set(GIT_COMMIT_HASH unknown)
+  endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
 else(EXISTS ${GIT_EXECUTABLE})
   set(GIT_COMMIT_HASH unknown)
 endif(EXISTS ${GIT_EXECUTABLE})
@@ -114,7 +114,12 @@ if(BUILD_LIBOPAE_C)
 endif()
 
 add_subdirectory(platforms)
-add_subdirectory(tools)
+
+option(BUILD_TOOLS "Enable OPAE tools compilation" ON)
+mark_as_advanced(BUILD_TOOLS)
+if(BUILD_TOOLS)
+  add_subdirectory(tools)
+endif()
 
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
