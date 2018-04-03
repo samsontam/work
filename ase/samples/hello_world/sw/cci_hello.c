@@ -34,12 +34,10 @@
 #include <unistd.h>
 #include <assert.h>
 #include <uuid/uuid.h>
-
 #include <opae/fpga.h>
 
 // State from the AFU's JSON file, extracted using OPAE's afu_json_mgr script
-// #include "afu_json_info.h"
-#define AFU_ACCEL_UUID "C6AA954A-9B91-4A37-ABC1-1D9F0709DCC3"
+#include "afu_json_info.h"
 
 #define CACHELINE_BYTES 64
 #define CL(x) ((x) * CACHELINE_BYTES)
@@ -133,6 +131,9 @@ int main(int argc, char *argv[])
     volatile char *buf;
     uint64_t wsid;
     uint64_t buf_pa;
+
+    (void) argc;
+    (void) argv;
 
     // Find and connect to the accelerator
     accel_handle = connect_to_accel(AFU_ACCEL_UUID);
