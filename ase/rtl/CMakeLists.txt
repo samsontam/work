@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project("opae-c-ase-server-rtl")
 include(ase_variables_config)
 
-# CCIP base RTL code
+# ASE server Verilog code
 if(ASE_POST_INSTALL)
   configure_file(${PROJECT_SOURCE_DIR}/sources_ase_server.txt
     ${PROJECT_BINARY_DIR}/sources_ase_server.txt)
