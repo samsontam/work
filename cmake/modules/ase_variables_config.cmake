@@ -47,11 +47,7 @@ find_program(AFU_PLATFORM_CONFIG
 ## Global ASE variables ####################################################
 ############################################################################
 
-if(ASE_POST_INSTALL)
-  set(ASE_SHARE_DIR            ${OPAE_BASE_DIR}/${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
-else()
-  set(ASE_SHARE_DIR            ${CMAKE_SOURCE_DIR}/ase)
-endif()
+set(ASE_SHARE_DIR              ${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
 set(ASE_SAMPLES                ${ASE_SHARE_DIR}/samples)
 set(ASE_SCRIPTS_IN             ${ASE_SHARE_DIR}/in)
 

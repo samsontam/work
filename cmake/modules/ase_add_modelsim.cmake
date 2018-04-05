@@ -154,6 +154,8 @@ function(ase_add_modelsim_module name)
   # Create ASE scripts
   configure_file(${CMAKE_BINARY_DIR}/ase/rtl/sources_ase_server.txt
     ${ASE_WORKDIR}/sources_ase_server.txt)
+  configure_file(${CMAKE_BINARY_DIR}/ase/rtl/sources_quartus_libs.txt
+    ${ASE_WORKDIR}/sources_quartus_libs.txt)
   configure_file(${ASE_SCRIPTS_IN}/ase.cfg.in
     ${ASE_CONFIG})
   configure_file(${ASE_SCRIPTS_IN}/ase_regress.sh.in
@@ -279,7 +281,12 @@ function(ase_add_modelsim_module name)
 
   set_property(TARGET ${name} PROPERTY ASE_MODULE_VLOG_FLAGS)
   set_property(TARGET ${name} PROPERTY ASE_MODULE_COMPILE_DEFINITIONS)
-  set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  set_property(TARGET ${name} PROPERTY ASE_MODULE_INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/platform_includes
+    ${CMAKE_CURRENT_BINARY_DIR}/hw/rtl
+    ${OPAE_BASE_DIR}/${PLATFORM_IF_RTL}
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_NAME       "intg_xeon")
   set_property(TARGET ${name} PROPERTY ASE_MODULE_PLATFORM_IF         "ccip_std_afu")
@@ -489,7 +496,7 @@ function(ase_finalize_modelsim_module_linking m)
       if(ext STREQUAL ".txt")
         configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} @ONLY)
       elseif(ext STREQUAL ".json")
-	configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json @ONLY)
+    configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/ccip_std_afu.json @ONLY)
       else()
         configure_file("${file_i}" ${CMAKE_CURRENT_BINARY_DIR}/${source_filename} COPYONLY)
       endif()

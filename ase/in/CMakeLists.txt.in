@@ -33,7 +33,7 @@ include(libraries_config)
 
 set(ASE_POST_INSTALL   ON)
 set(OPAE_BASE_DIR      @CMAKE_INSTALL_PREFIX@)
-set(OPAE_SHARE_DIR     share/opae)
+set(OPAE_SHARE_DIR     @CMAKE_INSTALL_PREFIX@/share/opae)
 include(ase_variables_config)
 
 add_subdirectory(rtl)

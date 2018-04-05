@@ -30,7 +30,7 @@ include(cmake_dev_config)
 
 # Set root ASE directories correctly now
 set(OPAE_BASE_DIR      ${CMAKE_SOURCE_DIR})
-set(OPAE_SHARE_DIR     ".")
+set(OPAE_SHARE_DIR     ${CMAKE_SOURCE_DIR})
 include(ase_variables_config)
 
 # Post-installation cmake project (enable ASE building after installation)

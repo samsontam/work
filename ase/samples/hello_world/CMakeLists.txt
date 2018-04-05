@@ -27,7 +27,10 @@
 project("opae-c-ase-samples-hello_world")
 include(ase_add_modelsim)
 
-# Define project
+######################################################################
+# ASE module definition ##############################################
+######################################################################
+
 set(hello_world_SOURCES
   hw/sources.txt
   hw/cci_hello.json)
@@ -48,10 +51,9 @@ ase_module_add_definitions(hello_world FPGA_PLATFORM_INTG_XEON)
 ase_finalize_modelsim_module_linking(hello_world)
 
 ######################################################################
-# Additional files which need to be copied (SystemVerilog source code)
+# Installation files #################################################
 ######################################################################
 
-# Define files to be installed
 if(NOT ASE_POST_INSTALL)
   install(FILES ${PROJECT_BINARY_DIR}/sources.txt
     DESTINATION ${ASE_SAMPLES}/hello_world/hw
@@ -67,15 +69,11 @@ if(NOT ASE_POST_INSTALL)
 endif()
 
 ######################################################################
-# Testing appliction #################################################
+# Testing application ################################################
 ######################################################################
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/libopae/src )
 
-set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-
-find_package(UUID REQUIRED)
-
-add_executable(cci_hello sw/cci_hello.c)
-target_link_libraries(cci_hello json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+add_executable(cci_hello_world sw/cci_hello_world.c)
+target_link_libraries(cci_hello_world json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)

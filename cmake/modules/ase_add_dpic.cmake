@@ -25,9 +25,11 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.11)
-include(ase_variables_config)
 
+find_package(UUID REQUIRED)
 find_package(Threads REQUIRED)
+include(coverage)
+include(ase_variables_config)
 
 ############################################################################
 ## Fetch tool and script locations #########################################
@@ -90,5 +92,15 @@ function(ase_add_dpic_module name)
   set_target_properties(opae-c-ase-server-${name} PROPERTIES
     VERSION ${INTEL_FPGA_API_VERSION}
     SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
+  # Add coverage flags
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    set_property(SOURCE ${ASESW_FILE_LIST} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
+  endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+  # Add coverage flags
+  if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    target_link_libraries(opae-c-ase-server-${name} ${GCOV_LINK_FLAGS})
+  endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 endfunction(ase_add_dpic_module name)
