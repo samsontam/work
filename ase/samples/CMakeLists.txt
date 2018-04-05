@@ -29,7 +29,12 @@
 cmake_minimum_required(VERSION 2.8.12)
 project("opae-c-ase-samples")
 
+include(intel_fpga_bbb)
 include(ase_add_modelsim)
+
+Build_Intel_FPGA_BBB()
+include_directories(base/sw)
+
 add_subdirectory(intg_xeon_nlb)
 add_subdirectory(hello_world)
 add_subdirectory(hello_world_mpf)

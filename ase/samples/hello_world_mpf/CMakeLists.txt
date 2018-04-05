@@ -72,8 +72,11 @@ endif()
 # Testing application ################################################
 ######################################################################
 
-# include_directories(${OPAE_INCLUDE_DIR}
-#                     ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR}
+  ${OPAE_SDK_SOURCE}/libopae/src
+  ${MPF_INCLUDE_DIRS})
 
-# add_executable(cci_hello_world sw/cci_hello_world.c)
-# target_link_libraries(cci_hello_world json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+add_executable(cci_hello_world_mpf
+  ${ASE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
+  sw/cci_mpf_hello.cpp)
+target_link_libraries(cci_hello_world_mpf json-c uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)
