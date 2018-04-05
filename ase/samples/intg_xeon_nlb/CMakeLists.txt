@@ -45,7 +45,6 @@ ase_module_set_platform_name(intg_xeon_nlb intg_xeon)
 # Add definitions
 ase_module_add_definitions(intg_xeon_nlb NUM_AFUS=1)
 ase_module_add_definitions(intg_xeon_nlb NLB400_MODE_0)
-ase_module_add_definitions(intg_xeon_nlb PLATFORM_IF_AVAIL)
 ase_module_add_definitions(intg_xeon_nlb FPGA_PLATFORM_INTG_XEON)
 
 # Configure files and finalize target rules

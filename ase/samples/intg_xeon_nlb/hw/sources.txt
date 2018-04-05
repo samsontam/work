@@ -4,7 +4,7 @@
 ## -F platform_if_addenda.txt
 
 ############################################################################
-## Common header (do not touch) ############################################
+## Simulation: Common header (do not touch) ################################
 ############################################################################
 
 # Altera simulation libraries
@@ -19,7 +19,7 @@ platform_includes/platform_afu_top_config.vh
 -F sources_ase_server.txt
 
 ############################################################################
-## AFU-specific section ####################################################
+## Simulation: AFU-specific section ########################################
 ############################################################################
 
 # QSYS-IPs
@@ -27,6 +27,10 @@ hw/rtl/lpbk1_RdRspRAM2PORT.v
 hw/rtl/lpbk1_RdRspRAM2PORT_ram_2port_160_5m77a5a.v
 hw/rtl/req_C1TxRAM2PORT_ram_2port_160_nfprwsy.v
 hw/rtl/req_C1TxRAM2PORT.v
+
+############################################################################
+## Synthesizable: AFU-specific section #####################################
+############################################################################
 
 # NLB RTL code
 hw/rtl/sys_cfg_pkg.svh

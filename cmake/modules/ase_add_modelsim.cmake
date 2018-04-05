@@ -44,6 +44,7 @@ set(questa_flags)
 list(APPEND questa_flags VENDOR_ALTERA)
 list(APPEND questa_flags TOOL_QUARTUS)
 list(APPEND questa_flags RTL_SIMULATION)
+list(APPEND questa_flags PLATFORM_IF_AVAIL)
 set(QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS ${questa_flags}
   CACHE STRING "Modelsim/Questa global define flags" FORCE)
 

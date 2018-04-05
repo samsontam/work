@@ -33,21 +33,22 @@ include(ase_add_modelsim)
 
 set(hello_world_SOURCES
   hw/sources.txt
-  hw/cci_hello.json)
-ase_add_modelsim_module(hello_world
+  hw/base_addenda.txt
+  hw/cci_mpf_hello.json)
+ase_add_modelsim_module(hello_world_mpf
   ${hello_world_SOURCES})
 file(COPY ${PROJECT_SOURCE_DIR}/hw/rtl
   DESTINATION ${PROJECT_BINARY_DIR}/hw)
 
 # Set platform
-ase_module_set_platform_name(hello_world intg_xeon)
+ase_module_set_platform_name(hello_world_mpf intg_xeon)
 
 # Add definitions
-ase_module_add_definitions(hello_world NUM_AFUS=1)
-ase_module_add_definitions(hello_world FPGA_PLATFORM_INTG_XEON)
+ase_module_add_definitions(hello_world_mpf NUM_AFUS=1)
+ase_module_add_definitions(hello_world_mpf FPGA_PLATFORM_INTG_XEON)
 
 # Configure files and finalize target rules
-ase_finalize_modelsim_module_linking(hello_world)
+ase_finalize_modelsim_module_linking(hello_world_mpf)
 
 ######################################################################
 # Installation files #################################################
@@ -55,15 +56,15 @@ ase_finalize_modelsim_module_linking(hello_world)
 
 if(NOT ASE_POST_INSTALL)
   install(FILES ${PROJECT_BINARY_DIR}/sources.txt
-    DESTINATION ${ASE_SAMPLES}/hello_world/hw
+    DESTINATION ${ASE_SAMPLES}/hello_world_mpf/hw
     COMPONENT asesamples)
 
-  install(FILES ${PROJECT_BINARY_DIR}/hw/cci_hello.json
-    DESTINATION ${ASE_SAMPLES}/hello_world/hw
+  install(FILES ${PROJECT_BINARY_DIR}/hw/cci_mpf_hello.json
+    DESTINATION ${ASE_SAMPLES}/hello_world_mpf/hw
     COMPONENT asesamples)
 
   install(DIRECTORY ${PROJECT_BINARY_DIR}/hw/rtl
-    DESTINATION ${ASE_SAMPLES}/hello_world/hw
+    DESTINATION ${ASE_SAMPLES}/hello_world_mpf/hw
     COMPONENT asesamples)
 endif()
 
@@ -71,8 +72,8 @@ endif()
 # Testing application ################################################
 ######################################################################
 
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${OPAE_SDK_SOURCE}/libopae/src )
+# include_directories(${OPAE_INCLUDE_DIR}
+#                     ${OPAE_SDK_SOURCE}/libopae/src )
 
-add_executable(cci_hello_world sw/cci_hello_world.c)
-target_link_libraries(cci_hello_world json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+# add_executable(cci_hello_world sw/cci_hello_world.c)
+# target_link_libraries(cci_hello_world json-c uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
