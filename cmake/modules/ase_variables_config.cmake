@@ -57,12 +57,15 @@ set(ASE_DISCRETE_EMIF_MODEL    "EMIF_MODEL_BASIC"                 CACHE STRING "
 set(ASE_TOP_ENTITY             "ase_top"                          CACHE STRING "Top entity for the ASE testbench")
 
 # Following variables should be local to the project
-set(ASE_TIMESCALE              "1ps/1ps"                          CACHE STRING "ASE timescale")
-set(ASE_SIMULATOR              "QUESTA"                           CACHE STRING "ASE simulator (default)")
-set(ASE_PLATFORM               "FPGA_PLATFORM_INTG_XEON"          CACHE STRING "ASE platform (default)")
+set(ASE_TIMESCALE              "1ps/1ps"                          CACHE STRING "Default ASE timescale")
+set(ASE_SIMULATOR              "QUESTA"                           CACHE STRING "Default ASE simulator")
+set(ASE_PLATFORM               "FPGA_PLATFORM_INTG_XEON"          CACHE STRING "Default ASE platform")
+
+set(ASE_MODE                   2                                  CACHE STRING "Default ASE mode (1=Ctrl-C server kill, 2=timeout server kill)")
+set(ASE_TIMEOUT                50000                              CACHE STRING "Default ASE timeout cycles")
+set(ASE_USR_CLK_MHZ            312.50000                          CACHE STRING "Default ASE AFU clock frequency")
 
 # SW library name
-set(ASE_PKG_FILE               ${ASE_SERVER_RTL}/ase_pkg.sv)
 set(ASE_SHOBJ_NAME             "libopae-c-ase-server")
 set(ASE_SHOBJ_SO               ${ASE_SHOBJ_NAME}.so)
 

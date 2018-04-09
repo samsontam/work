@@ -60,8 +60,13 @@
 #   > 5    |     n/a     |      n/a      | ** ILLEGAL **
 #          |             |               | Revert to ASE_MODE = 1
 #          |             |               |
-ASE_MODE = 1
-ASE_TIMEOUT = 50000
+
+# Default set to 1
+ASE_MODE = @ASE_MODE@
+
+# Default set to 50000
+ASE_TIMEOUT = @ASE_TIMEOUT@
+
 ASE_NUM_TESTS = 4
 
 # Enable reuse of ASE seed
@@ -76,7 +81,7 @@ ENABLE_CL_VIEW = 1
 
 # Configurable User Clock (Read by simulator as float)
 # DEFAULT: Set to '312.500'
-USR_CLK_MHZ = 312.500000
+USR_CLK_MHZ = @ASE_USR_CLK_MHZ@
 
 # Physical memory available
 # Helps in porting from CCI-S to CCI-P
