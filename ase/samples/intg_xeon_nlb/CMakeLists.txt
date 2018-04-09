@@ -67,3 +67,11 @@ if(NOT ASE_POST_INSTALL)
     DESTINATION ${ASE_SAMPLES}/intg_xeon_nlb/hw
     COMPONENT asesamples)
 endif()
+
+######################################################################
+# Test coverage ######################################################
+######################################################################
+
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  set_target_for_coverage_local(opae-c-ase-server-intg_xeon_nlb ${PROJECT_BINARY_DIR}/ase_server.sh)
+endif()

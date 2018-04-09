@@ -168,6 +168,7 @@ function(ase_add_modelsim_module name)
 
   # Set vsim flags in server script
   _get_per_build_var(vsim_flags_list QUESTA_VSIM_FLAGS)
+  # TODO: Replace 'lib' with ${OPAE_LIB_INSTALL_DIR} after directory naming update PR is merged
   list(APPEND vsim_flags_list -sv_lib ${CMAKE_BINARY_DIR}/lib/${ASE_SHOBJ_NAME}-${name})
   list(APPEND vsim_flags_list -l vlog_run.log)
 
