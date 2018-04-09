@@ -27,6 +27,7 @@
 cmake_minimum_required(VERSION 2.8.11)
 include(ase_variables_config)
 include(ase_add_dpic)
+include(intel_fpga_bbb)
 
 ############################################################################
 ## Fetch tool and script locations #########################################
@@ -45,6 +46,7 @@ list(APPEND questa_flags VENDOR_ALTERA)
 list(APPEND questa_flags TOOL_QUARTUS)
 list(APPEND questa_flags RTL_SIMULATION)
 list(APPEND questa_flags PLATFORM_IF_AVAIL)
+list(APPEND questa_flags FPGA_BBB_CCI_SRC=${FPGA_BBB_CCI_SRC})
 set(QUESTA_VLOG_GLOBAL_COMPILE_DEFINITIONS ${questa_flags}
   CACHE STRING "Modelsim/Questa global define flags" FORCE)
 
